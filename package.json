@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "drizzle-orm": "^0.31.0",
+    "express": "^4.19.2",
+    "postgres": "^3.4.4"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.22.1"
+  }
+}
