@@ -1,16 +1,11 @@
 import express from "express";
 
-import postgres from 'postgres';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { migrate } from 'drizzle-orm/postgres-js/migrator';
-import * as schema from './schema.ts';
-
-// for migrations
-const migrationClient = postgres("postgres://dam:password@localhost:5432/dam-project", { max: 1 });
-migrate(drizzle(migrationClient), { migrationsFolder: './drizzle' })
+import postgres from "postgres";
+import { drizzle } from "drizzle-orm/postgres-js";
+import * as schema from "./schema.ts";
 
 // for query purposes
-const queryClient = postgres("postgres://dam:password@localhost:5432/dam-project");
+const queryClient = postgres(process.env.DB_URL!);
 const db = drizzle(queryClient);
 
 const app = express();
@@ -23,5 +18,3 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log(`Listening on port ${port}...`);
 });
-
-

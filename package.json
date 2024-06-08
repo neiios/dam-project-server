@@ -1,10 +1,16 @@
 {
+  "scripts": {
+    "dev": "bun --watch index.ts",
+    "push": "drizzle-kit push",
+    "studio": "drizzle-kit studio"
+  },
   "dependencies": {
     "drizzle-orm": "^0.31.0",
     "express": "^4.19.2",
     "postgres": "^3.4.4"
   },
   "devDependencies": {
+    "@types/node": "^20.14.2",
     "drizzle-kit": "^0.22.1"
   }
 }
