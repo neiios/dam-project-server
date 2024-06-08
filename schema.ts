@@ -14,25 +14,24 @@ export const roleEnum = pgEnum("role", ["user", "admin"]);
 
 export const user = pgTable("user", {
   id: serial("id").primaryKey(),
-  name: varchar("name", { length: 256 }).notNull(),
-  password: varchar("name", { length: 256 }).notNull(),
-  email: varchar("name", { length: 256 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  password: varchar("password", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
   role: roleEnum("role"),
 });
 
 export const conference = pgTable("conference", {
   id: serial("id").primaryKey(),
-  name: varchar("name", { length: 256 }).notNull(),
-  location: varchar("name", { length: 256 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  location: varchar("location", { length: 255 }).notNull(),
   startDate: date("start_date").notNull(),
   endDate: date("end_date").notNull(),
   description: text("description").notNull(),
-  contactInfo: text("contact_info").notNull(),
 });
 
 export const article = pgTable("article", {
   id: serial("id").primaryKey(),
-  title: varchar("title", { length: 256 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
   authors: text("authors").notNull(),
   abstract: text("abstract").notNull(),
   conferenceId: serial("conference_id").notNull(),
@@ -40,7 +39,7 @@ export const article = pgTable("article", {
 
 export const track = pgTable("track", {
   id: serial("id").primaryKey(),
-  name: varchar("name", { length: 256 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
   description: text("description").notNull(),
   conferenceId: serial("conference_id").notNull(),
 });
