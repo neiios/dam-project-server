@@ -47,8 +47,6 @@ export const track = pgTable("track", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description").notNull(),
-  startDate: date("start_date").notNull(),
-  endDate: date("end_date").notNull(),
   conferenceId: serial("conference_id").notNull(),
 });
 

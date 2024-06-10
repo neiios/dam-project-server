@@ -121,22 +121,18 @@ app.post(
       body: z.object({
         name: z.string().max(255),
         description: z.string(),
-        startDate: z.string().datetime(),
-        endDate: z.string().datetime(),
       }),
     })
   ),
   async (req, res) => {
     const conferenceId = Number(req.params.id);
-    const { name, description, startDate, endDate } = req.body;
+    const { name, description } = req.body;
 
     const track = await db
       .insert(schema.track)
       .values({
         name,
         description,
-        startDate,
-        endDate,
         conferenceId,
       })
       .returning();
