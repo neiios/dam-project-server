@@ -17,10 +17,30 @@ const app = express();
 app.use(express.json());
 const port = 8080;
 
-app.get("/api/v1/conferences", async (_, res) => {
+function extractPaginationParameters(req): {
+  page: number;
+  pageSize: number;
+  offset: number;
+} {
+  // this is pretty unsafe and ugly, but oh well
+  const page = req.query.page ? parseInt(req.query.page as string) : 1;
+  const pageSize = req.query.pageSize
+    ? parseInt(req.query.pageSize as string)
+    : 10;
+  const offset = (page - 1) * pageSize;
+  return { page, pageSize, offset };
+}
+
+app.get("/api/v1/conferences", async (req, res) => {
+  const { pageSize, offset } = extractPaginationParameters(req);
+
   const conferences = await db.query.conference.findMany({
     with: { tracks: true },
+    orderBy: (conference, { asc }) => asc(conference.id),
+    limit: pageSize,
+    offset: offset,
   });
+
   res.send(conferences);
 });
 
