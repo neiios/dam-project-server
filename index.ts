@@ -18,7 +18,9 @@ app.use(express.json());
 const port = 8080;
 
 app.get("/api/v1/conferences", async (_, res) => {
-  const conferences = await db.select().from(schema.conference);
+  const conferences = await db.query.conference.findMany({
+    with: { tracks: true },
+  });
   res.send(conferences);
 });
 
