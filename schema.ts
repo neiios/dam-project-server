@@ -4,8 +4,8 @@ import {
   serial,
   varchar,
   numeric,
-  date,
   text,
+  timestamp,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -26,8 +26,8 @@ export const conference = pgTable("conference", {
   name: varchar("name", { length: 255 }).notNull(),
   longitude: numeric("longitude", { precision: 10, scale: 6 }).notNull(),
   latitude: numeric("latitude", { precision: 10, scale: 6 }).notNull(),
-  startDate: date("start_date").notNull(),
-  endDate: date("end_date").notNull(),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
   imageUrl: text("image_url").notNull(),
   description: text("description").notNull(),
   city: text("city").notNull(),
@@ -38,8 +38,8 @@ export const article = pgTable("article", {
   title: varchar("title", { length: 255 }).notNull(),
   authors: text("authors").notNull(),
   abstract: text("abstract").notNull(),
-  startDate: date("start_date").notNull(),
-  endDate: date("end_date").notNull(),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
   conferenceId: serial("conference_id").notNull(),
   trackId: serial("track_id").notNull(),
 });
