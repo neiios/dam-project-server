@@ -3,7 +3,7 @@ import express from "express";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import * as schema from "./schema.ts";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 
 import { z } from "zod";
 import { validate } from "./utils/validate.ts";
@@ -26,7 +26,7 @@ function extractPaginationParameters(req): {
   const page = req.query.page ? parseInt(req.query.page as string) : 1;
   const pageSize = req.query.pageSize
     ? parseInt(req.query.pageSize as string)
-    : 10;
+    : 1000;
   const offset = (page - 1) * pageSize;
   return { page, pageSize, offset };
 }
@@ -198,11 +198,15 @@ app.get(
   ),
   async (req, res) => {
     const conferenceId = req.params.id;
+    const { pageSize, offset } = extractPaginationParameters(req);
 
     const articles = await db
       .select()
       .from(schema.article)
-      .where(eq(schema.article.conferenceId, Number(conferenceId)));
+      .where(eq(schema.article.conferenceId, Number(conferenceId)))
+      .orderBy(asc(schema.article.id))
+      .limit(pageSize)
+      .offset(offset);
 
     res.send(articles);
   }
