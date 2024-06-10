@@ -40,6 +40,7 @@ export const article = pgTable("article", {
   startDate: date("start_date").notNull(),
   endDate: date("end_date").notNull(),
   conferenceId: serial("conference_id").notNull(),
+  trackId: serial("track_id").notNull(),
 });
 
 export const track = pgTable("track", {
@@ -63,11 +64,16 @@ export const articleRelations = relations(article, ({ one }) => ({
     fields: [article.conferenceId],
     references: [conference.id],
   }),
+  track: one(track, {
+    fields: [article.trackId],
+    references: [track.id],
+  }),
 }));
 
-export const trackRelations = relations(track, ({ one }) => ({
+export const trackRelations = relations(track, ({ one, many }) => ({
   conference: one(conference, {
     fields: [track.conferenceId],
     references: [conference.id],
   }),
+  articles: many(article),
 }));

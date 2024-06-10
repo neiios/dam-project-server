@@ -3,7 +3,7 @@ import express from "express";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import * as schema from "./schema.ts";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { z } from "zod";
 import { validate } from "./utils/validate.ts";
@@ -19,13 +19,6 @@ const port = 8080;
 
 app.get("/api/v1/conferences", async (req, res) => {
   const conferences = await db.select().from(schema.conference);
-  res.send(conferences);
-});
-
-app.get("/api/v1/conferences/everything", async (req, res) => {
-  const conferences = await db.query.conference.findMany({
-    with: { tracks: true, articles: true },
-  });
   res.send(conferences);
 });
 
@@ -67,6 +60,29 @@ app.post(
         description,
       })
       .returning();
+
+    res.send(conference);
+  }
+);
+
+app.get(
+  "/api/v1/conferences/:id",
+  validate(
+    z.object({
+      params: z.object({
+        id: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
+  async (req, res) => {
+    const conferenceId = Number(req.params.id);
+
+    const conference = await db.query.conference.findFirst({
+      where: eq(schema.conference.id, conferenceId),
+      with: {
+        tracks: { with: { articles: true } },
+      },
+    });
 
     res.send(conference);
   }
@@ -128,6 +144,32 @@ app.post(
 );
 
 app.get(
+  "/api/v1/conferences/:conferenceId/tracks/:trackId",
+  validate(
+    z.object({
+      params: z.object({
+        conferenceId: z.coerce.number().int().gt(0),
+        trackId: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
+  async (req, res) => {
+    const conferenceId = Number(req.params.conferenceId);
+    const trackId = Number(req.params.trackId);
+
+    const track = await db.query.track.findFirst({
+      where: and(
+        eq(schema.track.id, trackId),
+        eq(schema.track.conferenceId, conferenceId)
+      ),
+      with: { articles: true },
+    });
+
+    res.send(track);
+  }
+);
+
+app.get(
   "/api/v1/conferences/:id/articles",
   validate(
     z.object({
@@ -148,12 +190,38 @@ app.get(
   }
 );
 
-app.post(
-  "/api/v1/conferences/:id/articles",
+app.get(
+  "/api/v1/conferences/:conferenceId/articles/:articleId",
   validate(
     z.object({
       params: z.object({
-        id: z.coerce.number().int().gt(0),
+        conferenceId: z.coerce.number().int().gt(0),
+        articleId: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
+  async (req, res) => {
+    const conferenceId = Number(req.params.conferenceId);
+    const articleId = Number(req.params.articleId);
+
+    const article = await db.query.article.findFirst({
+      where: and(
+        eq(schema.article.id, articleId),
+        eq(schema.article.conferenceId, conferenceId)
+      ),
+    });
+
+    res.send(article);
+  }
+);
+
+app.post(
+  "/api/v1/conferences/:conferenceId/tracks/:trackId/articles",
+  validate(
+    z.object({
+      params: z.object({
+        conferenceId: z.coerce.number().int().gt(0),
+        trackId: z.coerce.number().int().gt(0),
       }),
       body: z.object({
         title: z.string().max(255),
@@ -165,7 +233,8 @@ app.post(
     })
   ),
   async (req, res) => {
-    const conferenceId = Number(req.params.id);
+    const conferenceId = Number(req.params.conferenceId);
+    const trackId = Number(req.params.trackId);
     const { title, authors, abstract, startDate, endDate } = req.body;
 
     const article = await db
@@ -177,6 +246,7 @@ app.post(
         startDate,
         endDate,
         conferenceId,
+        trackId,
       })
       .returning();
 
