@@ -70,6 +70,12 @@ app.post(
       description,
     } = req.body;
 
+    // TODO: handle the edge cases
+    const locationData = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+    );
+    const city = await locationData.json().then((data) => data?.address?.city);
+
     const conference = await db
       .insert(schema.conference)
       .values({
@@ -80,6 +86,7 @@ app.post(
         endDate,
         imageUrl,
         description,
+        city,
       })
       .returning();
 

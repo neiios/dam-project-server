@@ -30,6 +30,7 @@ export const conference = pgTable("conference", {
   endDate: date("end_date").notNull(),
   imageUrl: text("image_url").notNull(),
   description: text("description").notNull(),
+  city: text("city").notNull(),
 });
 
 export const article = pgTable("article", {
