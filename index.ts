@@ -117,6 +117,31 @@ app.get(
   }
 );
 
+// get conference lat and long only
+app.get(
+  "/api/v1/conferences/:id/location",
+  validate(
+    z.object({
+      params: z.object({
+        id: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
+  async (req, res) => {
+    const conferenceId = Number(req.params.id);
+
+    const coords = await db.query.conference.findFirst({
+      where: eq(schema.conference.id, conferenceId),
+      columns: {
+        latitude: true,
+        longitude: true,
+      },
+    });
+
+    res.send(coords);
+  }
+);
+
 app.get(
   "/api/v1/conferences/:id/tracks",
   validate(
