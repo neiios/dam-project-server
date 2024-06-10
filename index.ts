@@ -17,7 +17,7 @@ const app = express();
 app.use(express.json());
 const port = 8080;
 
-app.get("/api/v1/conferences", async (req, res) => {
+app.get("/api/v1/conferences", async (_, res) => {
   const conferences = await db.select().from(schema.conference);
   res.send(conferences);
 });
