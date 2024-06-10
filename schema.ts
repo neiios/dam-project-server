@@ -3,6 +3,7 @@ import {
   pgEnum,
   serial,
   varchar,
+  numeric,
   date,
   text,
 } from "drizzle-orm/pg-core";
@@ -23,9 +24,11 @@ export const user = pgTable("user", {
 export const conference = pgTable("conference", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
-  location: varchar("location", { length: 255 }).notNull(),
+  longitude: numeric("longitude", { precision: 10, scale: 6 }).notNull(),
+  latitude: numeric("latitude", { precision: 10, scale: 6 }).notNull(),
   startDate: date("start_date").notNull(),
   endDate: date("end_date").notNull(),
+  imageUrl: text("image_url").notNull(),
   description: text("description").notNull(),
 });
 
@@ -34,6 +37,8 @@ export const article = pgTable("article", {
   title: varchar("title", { length: 255 }).notNull(),
   authors: text("authors").notNull(),
   abstract: text("abstract").notNull(),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
   conferenceId: serial("conference_id").notNull(),
 });
 
@@ -41,6 +46,8 @@ export const track = pgTable("track", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description").notNull(),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
   conferenceId: serial("conference_id").notNull(),
 });
 

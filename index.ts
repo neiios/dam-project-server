@@ -10,7 +10,7 @@ import { validate } from "./utils/validate.ts";
 
 // get db instance
 const queryClient = postgres(process.env.DB_URL!);
-const db = drizzle(queryClient);
+const db = drizzle(queryClient, { schema });
 
 // create express app
 const app = express();
@@ -22,29 +22,48 @@ app.get("/api/v1/conferences", async (req, res) => {
   res.send(conferences);
 });
 
-const conferenceValidation = z.object({
-  body: z.object({
-    name: z.string().max(255),
-    location: z.string().max(255),
-    startDate: z.string().datetime(),
-    endDate: z.string().datetime(),
-    description: z.string(),
-  }),
+app.get("/api/v1/conferences/everything", async (req, res) => {
+  const conferences = await db.query.conference.findMany({
+    with: { tracks: true, articles: true },
+  });
+  res.send(conferences);
 });
 
 app.post(
   "/api/v1/conferences",
-  validate(conferenceValidation),
+  validate(
+    z.object({
+      body: z.object({
+        name: z.string().max(255),
+        latitude: z.coerce.number(),
+        longitude: z.coerce.number(),
+        startDate: z.string().datetime(),
+        endDate: z.string().datetime(),
+        imageUrl: z.string(),
+        description: z.string(),
+      }),
+    })
+  ),
   async (req, res) => {
-    const { name, location, startDate, endDate, description } = req.body;
+    const {
+      name,
+      latitude,
+      longitude,
+      startDate,
+      endDate,
+      imageUrl,
+      description,
+    } = req.body;
 
     const conference = await db
       .insert(schema.conference)
       .values({
         name,
-        location,
+        latitude,
+        longitude,
         startDate,
         endDate,
+        imageUrl,
         description,
       })
       .returning();
@@ -53,15 +72,15 @@ app.post(
   }
 );
 
-const conferenceIdValidation = z.object({
-  params: z.object({
-    id: z.coerce.number().int().gt(0),
-  }),
-});
-
 app.get(
   "/api/v1/conferences/:id/tracks",
-  validate(conferenceIdValidation),
+  validate(
+    z.object({
+      params: z.object({
+        id: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
   async (req, res) => {
     const conferenceId = Number(req.params.id);
 
@@ -74,26 +93,32 @@ app.get(
   }
 );
 
-const trackValidation = z.object({
-  body: z.object({
-    name: z.string().max(255),
-    description: z.string(),
-  }),
-});
-
 app.post(
   "/api/v1/conferences/:id/tracks",
-  validate(conferenceIdValidation),
-  validate(trackValidation),
+  validate(
+    z.object({
+      params: z.object({
+        id: z.coerce.number().int().gt(0),
+      }),
+      body: z.object({
+        name: z.string().max(255),
+        description: z.string(),
+        startDate: z.string().datetime(),
+        endDate: z.string().datetime(),
+      }),
+    })
+  ),
   async (req, res) => {
     const conferenceId = Number(req.params.id);
-    const { name, description } = req.body;
+    const { name, description, startDate, endDate } = req.body;
 
     const track = await db
       .insert(schema.track)
       .values({
         name,
         description,
+        startDate,
+        endDate,
         conferenceId,
       })
       .returning();
@@ -104,7 +129,13 @@ app.post(
 
 app.get(
   "/api/v1/conferences/:id/articles",
-  validate(conferenceIdValidation),
+  validate(
+    z.object({
+      params: z.object({
+        id: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
   async (req, res) => {
     const conferenceId = req.params.id;
 
@@ -117,21 +148,25 @@ app.get(
   }
 );
 
-const articleValidation = z.object({
-  body: z.object({
-    title: z.string().max(255),
-    authors: z.string(),
-    abstract: z.string(),
-  }),
-});
-
 app.post(
   "/api/v1/conferences/:id/articles",
-  validate(conferenceIdValidation),
-  validate(articleValidation),
+  validate(
+    z.object({
+      params: z.object({
+        id: z.coerce.number().int().gt(0),
+      }),
+      body: z.object({
+        title: z.string().max(255),
+        authors: z.string(),
+        abstract: z.string(),
+        startDate: z.string().datetime(),
+        endDate: z.string().datetime(),
+      }),
+    })
+  ),
   async (req, res) => {
     const conferenceId = Number(req.params.id);
-    const { title, authors, abstract } = req.body;
+    const { title, authors, abstract, startDate, endDate } = req.body;
 
     const article = await db
       .insert(schema.article)
@@ -139,6 +174,8 @@ app.post(
         title,
         authors,
         abstract,
+        startDate,
+        endDate,
         conferenceId,
       })
       .returning();
