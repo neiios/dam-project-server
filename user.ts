@@ -84,11 +84,11 @@ router.post(
   }
 );
 
-interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest extends Request {
   user?: any;
 }
 
-function authenticateToken(
+export function authenticateToken(
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
@@ -114,8 +114,11 @@ router.get(
     const user = await db.query.user.findFirst({
       where: eq(schema.user.id, userId),
     });
+
     if (!user) {
-      return res.status(404).json({ message: "lul what this cant happen" });
+      return res
+        .status(404)
+        .json({ message: "User not found. Was the user deleted?" });
     }
 
     const { password, ...userWithoutPassword } = user;
