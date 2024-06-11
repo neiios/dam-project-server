@@ -3,10 +3,13 @@ import express from "express";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import * as schema from "./schema.ts";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, or, sql } from "drizzle-orm";
 
 import { z } from "zod";
 import { validate } from "./utils/validate.ts";
+
+// TODO: make sure dates are inside the conference date range
+// applies to several endpoints
 
 // get db instance
 const queryClient = postgres(process.env.DB_URL!);
@@ -230,15 +233,43 @@ app.get(
   ),
   async (req, res) => {
     const conferenceId = req.params.id;
-    const { pageSize, offset } = extractPaginationParameters(req);
 
-    const articles = await db
-      .select()
-      .from(schema.article)
-      .where(eq(schema.article.conferenceId, Number(conferenceId)))
-      .orderBy(asc(schema.article.id))
-      .limit(pageSize)
-      .offset(offset);
+    // TODO: handle parseInt error
+    const page = req.query.page
+      ? parseInt(req.query.page as string)
+      : undefined;
+    const pageSize = req.query.pageSize
+      ? parseInt(req.query.pageSize as string)
+      : undefined;
+    const searchTerm = req.query.searchTerm;
+
+    const query = db.select().from(schema.article);
+    const matchConferenceId = eq(
+      schema.article.conferenceId,
+      Number(conferenceId)
+    );
+
+    if (searchTerm) {
+      const likeTerm = `%${searchTerm}%`.toLowerCase();
+      query.where(
+        and(
+          matchConferenceId,
+          or(
+            sql`lower(${schema.article.title}) ilike ${likeTerm}`,
+            sql`lower(${schema.article.authors}) ilike ${likeTerm}`
+          )
+        )
+      );
+    } else {
+      query.where(matchConferenceId);
+    }
+
+    if (page && pageSize) {
+      const offset = (page - 1) * pageSize;
+      query.orderBy(asc(schema.article.id)).limit(pageSize).offset(offset);
+    }
+
+    const articles = await query;
 
     res.send(articles);
   }
