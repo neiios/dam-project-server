@@ -269,6 +269,71 @@ app.get(
   }
 );
 
+app.get(
+  "/api/v1/conferences/:conferenceId/tracks/:trackId/articles",
+  validate(
+    z.object({
+      params: z.object({
+        conferenceId: z.coerce.number().int().gt(0),
+        trackId: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
+  async (req, res) => {
+    const conferenceId = Number(req.params.conferenceId);
+    const trackId = Number(req.params.trackId);
+
+    const articles = await db
+      .select()
+      .from(schema.article)
+      .where(
+        and(
+          eq(schema.article.conferenceId, conferenceId),
+          eq(schema.article.trackId, trackId)
+        )
+      );
+
+    res.send(articles);
+  }
+);
+
+app.get(
+  "/api/v1/conferences/:conferenceId/tracks/:trackId/schedule",
+  validate(
+    z.object({
+      params: z.object({
+        conferenceId: z.coerce.number().int().gt(0),
+        trackId: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
+  async (req, res) => {
+    const conferenceId = Number(req.params.conferenceId);
+    const trackId = Number(req.params.trackId);
+
+    const articles = await db
+      .select()
+      .from(schema.article)
+      .where(
+        and(
+          eq(schema.article.conferenceId, conferenceId),
+          eq(schema.article.trackId, trackId)
+        )
+      );
+
+    const organizedByDate = articles.reduce((acc, article) => {
+      const date = article.startDate.split(" ")[0]; // Extract date in yyyy-mm-dd format
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(article);
+      return acc;
+    }, {});
+
+    res.send(organizedByDate);
+  }
+);
+
 app.post(
   "/api/v1/conferences/:conferenceId/tracks/:trackId/articles",
   validate(
