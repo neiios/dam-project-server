@@ -108,8 +108,18 @@ function authenticateToken(
 router.get(
   "/profile",
   authenticateToken,
-  (req: AuthenticatedRequest, res: Response) => {
-    res.json({ message: `Welcome, User ${req.user.id}!` });
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user.id;
+
+    const user = await db.query.user.findFirst({
+      where: eq(schema.user.id, userId),
+    });
+    if (!user) {
+      return res.status(404).json({ message: "lul what this cant happen" });
+    }
+
+    const { password, ...userWithoutPassword } = user;
+    res.json(userWithoutPassword);
   }
 );
 
