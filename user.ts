@@ -36,8 +36,6 @@ router.post(
 
     const hashedPassword = await bcrypt.hash(password, 5);
 
-    // const defaultRole = schema.roleEnum.enumValues[0];
-
     const newUser = await db
       .insert(schema.user)
       .values({
