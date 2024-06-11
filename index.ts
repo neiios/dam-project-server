@@ -284,6 +284,7 @@ app.get(
         eq(schema.article.id, articleId),
         eq(schema.article.conferenceId, conferenceId)
       ),
+      with: { track: true },
     });
 
     res.send(article);
