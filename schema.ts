@@ -47,6 +47,7 @@ export const article = pgTable("article", {
 export const track = pgTable("track", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
+  room: varchar("room", { length: 255 }).notNull(),
   description: text("description").notNull(),
   conferenceId: serial("conference_id").notNull(),
 });

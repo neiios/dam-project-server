@@ -165,18 +165,20 @@ app.post(
       }),
       body: z.object({
         name: z.string().max(255),
+        room: z.string().max(255),
         description: z.string(),
       }),
     })
   ),
   async (req, res) => {
     const conferenceId = Number(req.params.id);
-    const { name, description } = req.body;
+    const { name, room, description } = req.body;
 
     const track = await db
       .insert(schema.track)
       .values({
         name,
+        room,
         description,
         conferenceId,
       })
