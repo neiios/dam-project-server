@@ -6,7 +6,7 @@ import * as schema from "./schema.ts";
 import { and, asc, eq, or, sql } from "drizzle-orm";
 
 import { z } from "zod";
-import { validate } from "./utils/validate.ts";
+import { validate, extractPaginationParameters } from "./utils.ts";
 
 // TODO: make sure dates are inside the conference date range
 // applies to several endpoints
