@@ -21,6 +21,29 @@ export const user = pgTable("user", {
   role: roleEnum("role").notNull(),
 });
 
+export const questionStatusEnum = pgEnum("question_status", [
+  "pending",
+  "answered",
+]);
+
+export const conferenceQuestions = pgTable("questions", {
+  id: serial("id").primaryKey(),
+  question: text("question").notNull(),
+  answer: text("answer"),
+  status: questionStatusEnum("status").notNull(),
+  conferenceId: serial("conference_id").notNull(), //FK
+  userId: serial("user_id").notNull(), // FK
+});
+
+export const articleQuestions = pgTable("article_questions", {
+  id: serial("id").primaryKey(),
+  question: text("question").notNull(),
+  answer: text("answer"),
+  status: questionStatusEnum("status").notNull(),
+  articleId: serial("article_id").notNull(), //FK
+  userId: serial("user_id").notNull(), // FK
+});
+
 export const conference = pgTable("conference", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
@@ -57,9 +80,10 @@ export const track = pgTable("track", {
 export const conferenceRelations = relations(conference, ({ many }) => ({
   articles: many(article),
   tracks: many(track),
+  questions: many(conferenceQuestions),
 }));
 
-export const articleRelations = relations(article, ({ one }) => ({
+export const articleRelations = relations(article, ({ many, one }) => ({
   conference: one(conference, {
     fields: [article.conferenceId],
     references: [conference.id],
@@ -68,6 +92,7 @@ export const articleRelations = relations(article, ({ one }) => ({
     fields: [article.trackId],
     references: [track.id],
   }),
+  questions: many(articleQuestions),
 }));
 
 export const trackRelations = relations(track, ({ one, many }) => ({
@@ -77,3 +102,36 @@ export const trackRelations = relations(track, ({ one, many }) => ({
   }),
   articles: many(article),
 }));
+
+export const userRelations = relations(user, ({ many }) => ({
+  conferenceQuestions: many(conferenceQuestions),
+  articleQuestions: many(articleQuestions),
+}));
+
+export const conferenceQuestionsRelations = relations(
+  conferenceQuestions,
+  ({ one }) => ({
+    conference: one(conference, {
+      fields: [conferenceQuestions.conferenceId],
+      references: [conference.id],
+    }),
+    user: one(user, {
+      fields: [conferenceQuestions.userId],
+      references: [user.id],
+    }),
+  })
+);
+
+export const articleQuestionsRelations = relations(
+  articleQuestions,
+  ({ one }) => ({
+    article: one(article, {
+      fields: [articleQuestions.articleId],
+      references: [article.id],
+    }),
+    user: one(user, {
+      fields: [articleQuestions.userId],
+      references: [user.id],
+    }),
+  })
+);

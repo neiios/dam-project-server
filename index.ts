@@ -9,6 +9,7 @@ import { z } from "zod";
 import { validate, extractPaginationParameters } from "./utils.ts";
 
 import userRouter from "./user";
+import questionRouter from "./questions.ts";
 
 // TODO: make sure dates are inside the conference date range
 // applies to several endpoints
@@ -23,6 +24,7 @@ app.use(express.json());
 const port = 8080;
 
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/questions", questionRouter);
 
 app.get("/api/v1/conferences", async (req, res) => {
   const { pageSize, offset } = extractPaginationParameters(req);
