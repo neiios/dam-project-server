@@ -8,31 +8,21 @@ import { and, asc, eq, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { validate, extractPaginationParameters } from "./utils.ts";
 
+import userRouter from "./user";
+
 // TODO: make sure dates are inside the conference date range
 // applies to several endpoints
 
 // get db instance
 const queryClient = postgres(process.env.DB_URL!);
-const db = drizzle(queryClient, { schema });
+export const db = drizzle(queryClient, { schema });
 
 // create express app
 const app = express();
 app.use(express.json());
 const port = 8080;
 
-function extractPaginationParameters(req): {
-  page: number;
-  pageSize: number;
-  offset: number;
-} {
-  // this is pretty unsafe and ugly, but oh well
-  const page = req.query.page ? parseInt(req.query.page as string) : 1;
-  const pageSize = req.query.pageSize
-    ? parseInt(req.query.pageSize as string)
-    : 1000;
-  const offset = (page - 1) * pageSize;
-  return { page, pageSize, offset };
-}
+app.use("/api/v1/users", userRouter);
 
 app.get("/api/v1/conferences", async (req, res) => {
   const { pageSize, offset } = extractPaginationParameters(req);

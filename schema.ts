@@ -18,7 +18,7 @@ export const user = pgTable("user", {
   name: varchar("name", { length: 255 }).notNull(),
   password: varchar("password", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull(),
-  role: roleEnum("role"),
+  role: roleEnum("role").notNull(),
 });
 
 export const conference = pgTable("conference", {
