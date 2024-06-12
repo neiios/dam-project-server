@@ -1,11 +1,11 @@
 import { Router, Response } from "express";
 
-import { db } from "./index";
-import * as schema from "./schema.ts";
+import { db } from "../index";
+import * as schema from "../schema.ts";
 import { eq, and } from "drizzle-orm";
 
-import { AuthenticatedRequest, authenticateToken } from "./user.ts";
-import { validate } from "./utils.ts";
+import { AuthenticatedRequest, authenticateToken } from "./userRouter.ts";
+import { validate } from "../utils.ts";
 import { z } from "zod";
 
 const router: Router = Router();
