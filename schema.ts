@@ -6,6 +6,7 @@ import {
   numeric,
   text,
   timestamp,
+  integer,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -31,8 +32,12 @@ export const conferenceQuestions = pgTable("questions", {
   question: text("question").notNull(),
   answer: text("answer"),
   status: questionStatusEnum("status").notNull(),
-  conferenceId: serial("conference_id").notNull(), //FK
-  userId: serial("user_id").notNull(), // FK
+  conferenceId: integer("conference_id")
+    .references(() => conference.id, { onDelete: "cascade" })
+    .notNull(), //FK
+  userId: integer("user_id") // NOTE: when the user is deleted, his questions are deleted as well, not sure if this is a good decision
+    .references(() => user.id, { onDelete: "cascade" })
+    .notNull(), // FK
 });
 
 export const articleQuestions = pgTable("article_questions", {
@@ -40,8 +45,12 @@ export const articleQuestions = pgTable("article_questions", {
   question: text("question").notNull(),
   answer: text("answer"),
   status: questionStatusEnum("status").notNull(),
-  articleId: serial("article_id").notNull(), //FK
-  userId: serial("user_id").notNull(), // FK
+  articleId: integer("article_id")
+    .references(() => article.id, { onDelete: "cascade" })
+    .notNull(), //FK
+  userId: integer("user_id") // NOTE: when the user is deleted, his questions are deleted as well, not sure if this is a good decision
+    .references(() => user.id, { onDelete: "cascade" })
+    .notNull(), // FK
 });
 
 export const conference = pgTable("conference", {
@@ -63,8 +72,12 @@ export const article = pgTable("article", {
   abstract: text("abstract").notNull(),
   startDate: timestamp("start_date", { mode: "string" }).notNull(),
   endDate: timestamp("end_date", { mode: "string" }).notNull(),
-  conferenceId: serial("conference_id").notNull(),
-  trackId: serial("track_id").notNull(),
+  conferenceId: integer("conference_id")
+    .references(() => conference.id, { onDelete: "cascade" })
+    .notNull(),
+  trackId: integer("track_id")
+    .references(() => track.id, { onDelete: "cascade" })
+    .notNull(),
 });
 
 export const track = pgTable("track", {
@@ -72,7 +85,9 @@ export const track = pgTable("track", {
   name: varchar("name", { length: 255 }).notNull(),
   room: varchar("room", { length: 255 }).notNull(),
   description: text("description").notNull(),
-  conferenceId: serial("conference_id").notNull(),
+  conferenceId: integer("conference_id")
+    .references(() => conference.id, { onDelete: "cascade" })
+    .notNull(),
 });
 
 // relations
