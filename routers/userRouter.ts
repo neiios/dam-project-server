@@ -126,4 +126,8 @@ router.get(
   }
 );
 
+router.get("/verify", authenticateToken, (_, res) => {
+  res.sendStatus(200);
+});
+
 export default router;
