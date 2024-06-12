@@ -46,7 +46,11 @@ router.post(
       })
       .returning();
 
-    res.status(201).json(newUser);
+    const token = jwt.sign({ id: newUser[0].id }, JWT_SECRET, {
+      expiresIn: "30d",
+    });
+
+    res.json({ token });
   }
 );
 
