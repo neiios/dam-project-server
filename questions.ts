@@ -33,6 +33,85 @@ router.get(
   }
 );
 
+router.patch(
+  "/admin/conferences/:questionId",
+  validate(
+    z.object({
+      params: z.object({
+        questionId: z.coerce.number().int().gt(0),
+      }),
+      body: z.object({
+        answer: z.string().max(255),
+      }),
+    })
+  ),
+  authenticateToken,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user.id;
+    const questionId = Number(req.params.questionId);
+    const { answer } = req.body;
+    const user = await db.query.user.findFirst({
+      where: eq(schema.user.id, userId),
+    });
+
+    // only admins should be able to update the question
+    if (!user || user.role !== "admin") {
+      return res.status(401).json({ message: "Access denied" });
+    }
+
+    const question = await db.query.conferenceQuestions.findFirst({
+      where: eq(schema.conferenceQuestions.id, questionId),
+    });
+
+    if (!question) {
+      return res.status(401).json({ message: "Question not found" });
+    }
+
+    const updatedQuestion = await db
+      .update(schema.conferenceQuestions)
+      .set({ answer, status: "answered" })
+      .where(eq(schema.conferenceQuestions.id, questionId))
+      .returning();
+
+    return res.json(updatedQuestion);
+  }
+);
+
+router.delete(
+  "/admin/conferences/:questionId",
+  validate(
+    z.object({
+      params: z.object({
+        questionId: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
+  authenticateToken,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user.id;
+    const questionId = Number(req.params.questionId);
+    const user = await db.query.user.findFirst({
+      where: eq(schema.user.id, userId),
+    });
+
+    if (!user || user.role !== "admin") {
+      return res.status(401).json({ message: "Access denied" });
+    }
+
+    const question = await db.query.conferenceQuestions.findFirst({
+      where: eq(schema.conferenceQuestions.id, questionId),
+    });
+
+    if (!question) {
+      return res.status(401).json({ message: "Question not found" });
+    }
+
+    await db
+      .delete(schema.conferenceQuestions)
+      .where(eq(schema.conferenceQuestions.id, questionId));
+  }
+);
+
 router.get(
   "/conferences/:id",
   authenticateToken,
@@ -141,6 +220,85 @@ router.get(
       ),
     });
     return res.json(questions);
+  }
+);
+
+router.patch(
+  "/admin/articles/:questionId",
+  validate(
+    z.object({
+      params: z.object({
+        questionId: z.coerce.number().int().gt(0),
+      }),
+      body: z.object({
+        answer: z.string().max(255),
+      }),
+    })
+  ),
+  authenticateToken,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user.id;
+    const questionId = Number(req.params.questionId);
+    const { answer } = req.body;
+    const user = await db.query.user.findFirst({
+      where: eq(schema.user.id, userId),
+    });
+
+    // only admins should be able to update the question
+    if (!user || user.role !== "admin") {
+      return res.status(401).json({ message: "Access denied" });
+    }
+
+    const question = await db.query.articleQuestions.findFirst({
+      where: eq(schema.articleQuestions.id, questionId),
+    });
+
+    if (!question) {
+      return res.status(401).json({ message: "Question not found" });
+    }
+
+    const updatedQuestion = await db
+      .update(schema.articleQuestions)
+      .set({ answer, status: "answered" })
+      .where(eq(schema.articleQuestions.id, questionId))
+      .returning();
+
+    return res.json(updatedQuestion);
+  }
+);
+
+router.delete(
+  "/admin/articles/:questionId",
+  validate(
+    z.object({
+      params: z.object({
+        questionId: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
+  authenticateToken,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user.id;
+    const questionId = Number(req.params.questionId);
+    const user = await db.query.user.findFirst({
+      where: eq(schema.user.id, userId),
+    });
+
+    if (!user || user.role !== "admin") {
+      return res.status(401).json({ message: "Access denied" });
+    }
+
+    const question = await db.query.articleQuestions.findFirst({
+      where: eq(schema.articleQuestions.id, questionId),
+    });
+
+    if (!question) {
+      return res.status(401).json({ message: "Question not found" });
+    }
+
+    await db
+      .delete(schema.articleQuestions)
+      .where(eq(schema.articleQuestions.id, questionId));
   }
 );
 
