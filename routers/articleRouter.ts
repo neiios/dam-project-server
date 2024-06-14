@@ -12,7 +12,7 @@ const router: Router = Router();
 
 // gett all conference articles, supports pagination and search
 router.get(
-  "/",
+  "/api/v1/conferences/:conferenceId/articles",
   validate(
     z.object({
       params: z.object({
@@ -66,7 +66,7 @@ router.get(
 
 // get an article by id with track info
 router.get(
-  "/:articleId",
+  "/api/v1/conferences/:conferenceId/articles/:articleId",
   validate(
     z.object({
       params: z.object({
@@ -89,7 +89,7 @@ router.get(
 
 // update an article information, only admins can do this
 router.patch(
-  "/:articleId",
+  "/api/v1/conferences/:conferenceId/articles/:articleId",
   validate(
     z.object({
       params: z.object({
@@ -132,7 +132,7 @@ router.patch(
 
 // delete an article, only admins can do this
 router.delete(
-  "/:articleId",
+  "/api/v1/conferences/:conferenceId/articles/:articleId",
   validate(
     z.object({
       params: z.object({

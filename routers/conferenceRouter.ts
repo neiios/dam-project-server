@@ -14,7 +14,7 @@ import { z } from "zod";
 const router: Router = Router();
 
 // get all conferences with tracks
-router.get("/", async (req, res) => {
+router.get("/api/v1/conferences", async (req, res) => {
   const { pageSize, offset } = extractPaginationParameters(req);
 
   const conferences = await db.query.conference.findMany({
@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
 
 // add conference
 router.post(
-  "/",
+  "/api/v1/conferences",
   validate(
     z.object({
       body: z.object({
@@ -89,7 +89,7 @@ router.post(
 
 // update conference info
 router.patch(
-  "/:id",
+  "/api/v1/conferences/:id",
   validate(
     z.object({
       params: z.object({
@@ -147,7 +147,7 @@ router.patch(
 
 // delete a conference, only admins can do this, does a cascade delete
 router.delete(
-  "/:id",
+  "/api/v1/conferences/:id",
   validate(
     z.object({
       params: z.object({
@@ -174,7 +174,7 @@ router.delete(
 
 // get conference by id with tracks and articles
 router.get(
-  "/:id",
+  "/api/v1/conferences/:id",
   validate(
     z.object({
       params: z.object({
@@ -198,7 +198,7 @@ router.get(
 
 // get conference lat and long only
 router.get(
-  "/:id/location",
+  "/api/v1/conferences/:id/location",
   validate(
     z.object({
       params: z.object({

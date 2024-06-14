@@ -14,7 +14,7 @@ const router: Router = Router();
 const JWT_SECRET = "muchsecret";
 
 router.post(
-  "/register",
+  "/api/v1/users/register",
   validate(
     z.object({
       body: z.object({
@@ -55,7 +55,7 @@ router.post(
 );
 
 router.post(
-  "/login",
+  "/api/v1/users/login",
   validate(
     z.object({
       body: z.object({
@@ -110,7 +110,7 @@ export function authenticateToken(
 }
 
 router.get(
-  "/profile",
+  "/api/v1/users/profile",
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user.id;
@@ -130,7 +130,7 @@ router.get(
   }
 );
 
-router.get("/verify", authenticateToken, (_, res) => {
+router.get("/api/v1/users/verify", authenticateToken, (_, res) => {
   res.sendStatus(200);
 });
 

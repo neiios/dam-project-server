@@ -19,11 +19,11 @@ const app = express();
 app.use(express.json());
 const port = 8080;
 
-app.use("/api/v1/users", userRouter);
-app.use("/api/v1/questions", questionRouter);
-app.use("/api/v1/conferences", conferenceRouter);
+app.use("/", userRouter);
+app.use("/", questionRouter);
+app.use("/", conferenceRouter);
 app.use("/", tracksRouter);
-app.use("/api/v1/conferences/:conferenceId/articles", articleRouter);
+app.use("/", articleRouter);
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}...`);

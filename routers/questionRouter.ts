@@ -11,7 +11,7 @@ import { z } from "zod";
 const router: Router = Router();
 
 router.get(
-  "/admin/conferences/:id",
+  "/api/v1/questions/admin/conferences/:id",
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user.id;
@@ -34,7 +34,7 @@ router.get(
 );
 
 router.patch(
-  "/admin/conferences/:questionId",
+  "/api/v1/questions/admin/conferences/:questionId",
   validate(
     z.object({
       params: z.object({
@@ -78,7 +78,7 @@ router.patch(
 );
 
 router.delete(
-  "/admin/conferences/:questionId",
+  "/api/v1/questions/admin/conferences/:questionId",
   validate(
     z.object({
       params: z.object({
@@ -113,7 +113,7 @@ router.delete(
 );
 
 router.get(
-  "/conferences/:id",
+  "/api/v1/questions/conferences/:id",
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user.id;
@@ -138,7 +138,7 @@ router.get(
 );
 
 router.post(
-  "/conferences/:id",
+  "/api/v1/questions/conferences/:id",
   validate(
     z.object({
       params: z.object({
@@ -178,7 +178,7 @@ router.post(
 );
 
 router.get(
-  "/admin/articles/:id",
+  "/api/v1/questions/admin/articles/:id",
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user.id;
@@ -200,7 +200,7 @@ router.get(
 );
 
 router.get(
-  "/articles/:id",
+  "/api/v1/questions/articles/:id",
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user.id;
@@ -224,7 +224,7 @@ router.get(
 );
 
 router.patch(
-  "/admin/articles/:questionId",
+  "/api/v1/questions/admin/articles/:questionId",
   validate(
     z.object({
       params: z.object({
@@ -268,7 +268,7 @@ router.patch(
 );
 
 router.delete(
-  "/admin/articles/:questionId",
+  "/api/v1/questions/admin/articles/:questionId",
   validate(
     z.object({
       params: z.object({
@@ -303,7 +303,7 @@ router.delete(
 );
 
 router.post(
-  "/articles/:id",
+  "/api/v1/questions/articles/:id",
   validate(
     z.object({
       params: z.object({
