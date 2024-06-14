@@ -22,7 +22,7 @@ const port = 8080;
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/questions", questionRouter);
 app.use("/api/v1/conferences", conferenceRouter);
-app.use("/api/v1/conferences/:conferenceId/tracks", tracksRouter);
+app.use("/", tracksRouter);
 app.use("/api/v1/conferences/:conferenceId/articles", articleRouter);
 
 app.listen(port, () => {

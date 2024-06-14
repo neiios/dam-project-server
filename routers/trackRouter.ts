@@ -11,7 +11,7 @@ import { z } from "zod";
 const router: Router = Router();
 
 router.get(
-  "/",
+  "/api/v1/conferences/:conferenceId/tracks",
   validate(
     z.object({
       params: z.object({
@@ -32,7 +32,7 @@ router.get(
 );
 
 router.post(
-  "/",
+  "/api/v1/conferences/:conferenceId/tracks",
   validate(
     z.object({
       params: z.object({
@@ -74,7 +74,7 @@ router.post(
 );
 
 router.get(
-  "/:trackId",
+  "/api/v1/conferences/:conferenceId/tracks/:trackId",
   validate(
     z.object({
       params: z.object({
@@ -100,7 +100,7 @@ router.get(
 );
 
 router.patch(
-  "/:trackId",
+  "/api/v1/conferences/:conferenceId/tracks/:trackId",
   validate(
     z.object({
       params: z.object({
@@ -149,7 +149,7 @@ router.patch(
 );
 
 router.delete(
-  "/:trackId",
+  "/api/v1/conferences/:conferenceId/tracks/:trackId",
   validate(
     z.object({
       params: z.object({
@@ -178,7 +178,7 @@ router.delete(
 
 // get tracks organized by date
 router.get(
-  "/:trackId/schedule",
+  "/api/v1/conferences/:conferenceId/tracks/:trackId/schedule",
   validate(
     z.object({
       params: z.object({
@@ -215,7 +215,7 @@ router.get(
 );
 
 router.get(
-  "/:trackId/articles",
+  "/api/v1/conferences/:conferenceId/tracks/:trackId/articles",
   validate(
     z.object({
       params: z.object({
@@ -244,7 +244,7 @@ router.get(
 
 // add an article to a track
 router.post(
-  "/:trackId/articles",
+  "/api/v1/conferences/:conferenceId/tracks/:trackId/articles",
   validate(
     z.object({
       params: z.object({
