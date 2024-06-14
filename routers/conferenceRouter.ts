@@ -24,7 +24,7 @@ router.get("/api/v1/conferences", async (req, res) => {
     offset: offset,
   });
 
-  res.send(conferences);
+  return res.status(200).json(conferences);
 });
 
 // add conference
@@ -69,21 +69,23 @@ router.post(
     );
     const city = await locationData.json().then((data) => data?.address?.city);
 
-    const conference = await db
-      .insert(schema.conference)
-      .values({
-        name,
-        latitude,
-        longitude,
-        startDate,
-        endDate,
-        imageUrl,
-        description,
-        city,
-      })
-      .returning();
+    const conference = (
+      await db
+        .insert(schema.conference)
+        .values({
+          name,
+          latitude,
+          longitude,
+          startDate,
+          endDate,
+          imageUrl,
+          description,
+          city,
+        })
+        .returning()
+    ).at(0);
 
-    res.send(conference);
+    return res.status(200).json(conference);
   }
 );
 
@@ -127,21 +129,23 @@ router.patch(
       return res.status(401).json({ message: "Access denied" });
     }
 
-    const conference = await db
-      .update(schema.conference)
-      .set({
-        name,
-        latitude,
-        longitude,
-        startDate,
-        endDate,
-        imageUrl,
-        description,
-      })
-      .where(eq(schema.conference.id, conferenceId))
-      .returning();
+    const conference = (
+      await db
+        .update(schema.conference)
+        .set({
+          name,
+          latitude,
+          longitude,
+          startDate,
+          endDate,
+          imageUrl,
+          description,
+        })
+        .where(eq(schema.conference.id, conferenceId))
+        .returning()
+    ).at(0);
 
-    res.send(conference);
+    return res.status(200).json(conference);
   }
 );
 
@@ -169,6 +173,8 @@ router.delete(
     await db
       .delete(schema.conference)
       .where(eq(schema.conference.id, conferenceId));
+
+    return res.status(200);
   }
 );
 
@@ -192,7 +198,7 @@ router.get(
       },
     });
 
-    res.send(conference);
+    return res.status(200).json(conference);
   }
 );
 
@@ -217,7 +223,7 @@ router.get(
       },
     });
 
-    res.send(coords);
+    return res.status(200).json(coords);
   }
 );
 

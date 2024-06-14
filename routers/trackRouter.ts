@@ -27,7 +27,7 @@ router.get(
       .from(schema.track)
       .where(eq(schema.track.conferenceId, conferenceId));
 
-    res.send(tracks);
+    return res.status(200).json(tracks);
   }
 );
 
@@ -69,7 +69,7 @@ router.post(
       })
       .returning();
 
-    res.send(track);
+    return res.status(200).json(track);
   }
 );
 
@@ -95,7 +95,7 @@ router.get(
       with: { articles: true },
     });
 
-    res.send(track);
+    return res.status(200).json(track);
   }
 );
 
@@ -144,7 +144,7 @@ router.patch(
       )
       .returning();
 
-    res.send(track);
+    return res.status(200).json(track);
   }
 );
 
@@ -173,6 +173,8 @@ router.delete(
     const track = await db
       .delete(schema.track)
       .where(and(eq(schema.track.id, trackId)));
+
+    return res.status(200);
   }
 );
 
@@ -210,7 +212,7 @@ router.get(
       return acc;
     }, {});
 
-    res.send(organizedByDate);
+    return res.status(200).json(organizedByDate);
   }
 );
 
@@ -238,7 +240,7 @@ router.get(
         )
       );
 
-    res.send(articles);
+    return res.status(200).json(articles);
   }
 );
 
@@ -288,7 +290,7 @@ router.post(
       })
       .returning();
 
-    res.send(article);
+    return res.status(200).json(article);
   }
 );
 

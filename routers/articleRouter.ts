@@ -60,7 +60,7 @@ router.get(
 
     const articles = await query;
 
-    res.send(articles);
+    return res.json(articles);
   }
 );
 
@@ -83,7 +83,7 @@ router.get(
       with: { track: true },
     });
 
-    res.send(article);
+    return res.json(article);
   }
 );
 
@@ -126,7 +126,7 @@ router.patch(
       .where(and(eq(schema.article.id, articleId)))
       .returning();
 
-    res.send(article);
+    return res.json(article);
   }
 );
 
@@ -152,6 +152,8 @@ router.delete(
     }
 
     await db.delete(schema.article).where(eq(schema.article.id, articleId));
+
+    return res.status(200);
   }
 );
 

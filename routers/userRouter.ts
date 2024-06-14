@@ -50,7 +50,7 @@ router.post(
       expiresIn: "30d",
     });
 
-    res.json({ token });
+    return res.status(200).json({ token });
   }
 );
 
@@ -84,7 +84,7 @@ router.post(
       expiresIn: "30d",
     });
 
-    res.json({ token });
+    return res.status(200).json({ token });
   }
 );
 
@@ -126,12 +126,12 @@ router.get(
     }
 
     const { password, ...userWithoutPassword } = user;
-    res.json(userWithoutPassword);
+    return res.status(200).json(userWithoutPassword);
   }
 );
 
 router.get("/api/v1/users/verify", authenticateToken, (_, res) => {
-  res.sendStatus(200);
+  return res.status(200);
 });
 
 export default router;

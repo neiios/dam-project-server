@@ -29,7 +29,7 @@ router.get(
       where: eq(schema.conferenceQuestions.conferenceId, conferenceId),
     });
 
-    return res.json(questions);
+    return res.status(200).json(questions);
   }
 );
 
@@ -73,7 +73,7 @@ router.patch(
       .where(eq(schema.conferenceQuestions.id, questionId))
       .returning();
 
-    return res.json(updatedQuestion);
+    return res.status(200).json(updatedQuestion);
   }
 );
 
@@ -109,6 +109,8 @@ router.delete(
     await db
       .delete(schema.conferenceQuestions)
       .where(eq(schema.conferenceQuestions.id, questionId));
+
+    return res.status(200);
   }
 );
 
@@ -133,7 +135,8 @@ router.get(
         eq(schema.conferenceQuestions.userId, userId)
       ),
     });
-    return res.json(questions);
+
+    return res.status(200).json(questions);
   }
 );
 
@@ -173,7 +176,7 @@ router.post(
       })
       .returning();
 
-    return res.json(newQuestion);
+    return res.status(200).json(newQuestion);
   }
 );
 
@@ -195,7 +198,7 @@ router.get(
       where: eq(schema.articleQuestions.articleId, articleId),
     });
 
-    return res.json(questions);
+    return res.status(200).json(questions);
   }
 );
 
@@ -219,7 +222,8 @@ router.get(
         eq(schema.articleQuestions.status, "answered")
       ),
     });
-    return res.json(questions);
+
+    return res.status(200).json(questions);
   }
 );
 
@@ -263,7 +267,7 @@ router.patch(
       .where(eq(schema.articleQuestions.id, questionId))
       .returning();
 
-    return res.json(updatedQuestion);
+    return res.status(200).json(updatedQuestion);
   }
 );
 
@@ -299,6 +303,8 @@ router.delete(
     await db
       .delete(schema.articleQuestions)
       .where(eq(schema.articleQuestions.id, questionId));
+
+    return res.status(200);
   }
 );
 
@@ -338,7 +344,7 @@ router.post(
       })
       .returning();
 
-    return res.json(newQuestion);
+    return res.status(200).json(newQuestion);
   }
 );
 
