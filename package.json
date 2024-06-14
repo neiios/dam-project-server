@@ -2,7 +2,8 @@
   "scripts": {
     "dev": "bun --watch index.ts",
     "push": "drizzle-kit push",
-    "studio": "drizzle-kit studio"
+    "studio": "drizzle-kit studio",
+    "seed": "docker exec -i dam-project-postgres psql -U dam -d dam-project -f /test-data.sql"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
