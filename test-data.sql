@@ -31,13 +31,13 @@ VALUES
 -- Conference Questions
 INSERT INTO questions (question, answer, status, conference_id, user_id)
 VALUES
-    ('What are the keynote speakers?', 'Details to be announced', 'pending', 1, 1),
+    ('What are the keynote speakers?', '', 'pending', 1, 1),
     ('Will there be a virtual option?', 'Yes, virtual tickets available', 'answered', 1, 2),
     ('How can I submit a paper?', 'Deadline has passed', 'answered', 2, 3);
 
 -- Article Questions
 INSERT INTO article_questions (question, answer, status, article_id, user_id)
 VALUES
-    ('Are the slides available?', 'Will be posted after the conference', 'pending', 1, 4),
+    ('Are the slides available?', '', 'pending', 1, 4),
     ('Is there a video recording?', 'Yes, available on our YouTube channel', 'answered', 2, 5),
     ('How does this relate to real-world problems?', 'Applications in healthcare, finance, etc.', 'answered', 3, 1);
