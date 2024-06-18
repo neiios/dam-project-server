@@ -10,13 +10,13 @@ import { z } from "zod";
 
 const router: Router = Router();
 
-// gett all conference articles, supports pagination and search
+// get all conference articles, supports pagination and search
 router.get(
   "/api/v1/conferences/:conferenceId/articles",
   validate(
     z.object({
       params: z.object({
-        id: z.coerce.number().int().gt(0),
+        conferenceId: z.coerce.number().int().gt(0),
       }),
     })
   ),
