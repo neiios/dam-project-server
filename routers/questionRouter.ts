@@ -80,7 +80,6 @@ router.get(
   }
 );
 
-// anyone can get answered questions for an article
 router.get(
   "/api/v1/articles/:articleId/questions",
   validate(
@@ -94,10 +93,14 @@ router.get(
     const articleId = Number(req.params.articleId);
 
     const questions = await db.query.articleQuestions.findMany({
-      where: and(
-        eq(schema.articleQuestions.articleId, articleId),
-        eq(schema.articleQuestions.status, "answered")
-      ),
+      where: eq(schema.articleQuestions.articleId, articleId),
+      columns: {
+        id: true,
+        question: true,
+        status: true,
+        articleId: true,
+        userId: true,
+      },
     });
 
     return res.status(200).json(questions);
