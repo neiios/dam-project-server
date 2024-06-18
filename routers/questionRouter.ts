@@ -10,12 +10,61 @@ import { z } from "zod";
 
 const router: Router = Router();
 
-router.get(
-  "/api/v1/questions/admin/articles/:id",
+// adds a new question
+router.post(
+  "/api/v1/questions/:id",
+  validate(
+    z.object({
+      params: z.object({
+        id: z.coerce.number().int().gt(0),
+      }),
+      body: z.object({
+        question: z.string().max(255),
+      }),
+    })
+  ),
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user.id;
     const articleId = Number(req.params.id);
+    const { question } = req.body;
+
+    const user = await db.query.user.findFirst({
+      where: eq(schema.user.id, userId),
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const newQuestion = await db
+      .insert(schema.articleQuestions)
+      .values({
+        question,
+        status: "pending",
+        userId,
+        articleId,
+      })
+      .returning();
+
+    return res.status(200).json(newQuestion);
+  }
+);
+
+// lets admin retrieve a question by id
+router.get(
+  "/api/v1/questions/:questionId",
+  validate(
+    z.object({
+      params: z.object({
+        questionId: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
+  authenticateToken,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user.id;
+    const questionId = Number(req.params.questionId);
     const user = await db.query.user.findFirst({
       where: eq(schema.user.id, userId),
     });
@@ -24,20 +73,28 @@ router.get(
       return res.status(401).json({ message: "Access denied" });
     }
 
-    const questions = await db.query.articleQuestions.findMany({
-      where: eq(schema.articleQuestions.articleId, articleId),
+    const question = await db.query.articleQuestions.findFirst({
+      where: eq(schema.articleQuestions.id, questionId),
     });
 
-    return res.status(200).json(questions);
+    return res.status(200).json(question);
   }
 );
 
+// regular users can get answered questions for an article
 router.get(
-  "/api/v1/questions/articles/:id",
+  "/api/v1/articles/:articleId/questions",
+  validate(
+    z.object({
+      params: z.object({
+        articleId: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user.id;
-    const articleId = Number(req.params.id);
+    const articleId = Number(req.params.articleId);
     const user = await db.query.user.findFirst({
       where: eq(schema.user.id, userId),
     });
@@ -57,8 +114,9 @@ router.get(
   }
 );
 
+// lets admin answer an article question by id
 router.patch(
-  "/api/v1/questions/admin/articles/:questionId",
+  "/api/v1/questions/:questionId",
   validate(
     z.object({
       params: z.object({
@@ -102,7 +160,7 @@ router.patch(
 );
 
 router.delete(
-  "/api/v1/questions/admin/articles/:questionId",
+  "/api/v1/questions/:questionId",
   validate(
     z.object({
       params: z.object({
@@ -135,46 +193,6 @@ router.delete(
       .where(eq(schema.articleQuestions.id, questionId));
 
     return res.status(200);
-  }
-);
-
-router.post(
-  "/api/v1/questions/articles/:id",
-  validate(
-    z.object({
-      params: z.object({
-        id: z.coerce.number().int().gt(0),
-      }),
-      body: z.object({
-        question: z.string().max(255),
-      }),
-    })
-  ),
-  authenticateToken,
-  async (req: AuthenticatedRequest, res: Response) => {
-    const userId = req.user.id;
-    const articleId = Number(req.params.id);
-    const { question } = req.body;
-
-    const user = await db.query.user.findFirst({
-      where: eq(schema.user.id, userId),
-    });
-
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
-    }
-
-    const newQuestion = await db
-      .insert(schema.articleQuestions)
-      .values({
-        question,
-        status: "pending",
-        userId,
-        articleId,
-      })
-      .returning();
-
-    return res.status(200).json(newQuestion);
   }
 );
 
