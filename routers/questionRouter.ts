@@ -2,7 +2,7 @@ import { Router, Response } from "express";
 
 import { db } from "../index";
 import * as schema from "../schema.ts";
-import { eq, and } from "drizzle-orm";
+import { eq, and, count } from "drizzle-orm";
 
 import { AuthenticatedRequest, authenticateToken } from "./userRouter.ts";
 import { validate } from "../utils.ts";
@@ -110,6 +110,42 @@ router.get(
     });
 
     return res.status(200).json(questions);
+  }
+);
+
+router.get(
+  "/api/v1/articles/:articleId/questions/count",
+  validate(
+    z.object({
+      params: z.object({
+        articleId: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
+  authenticateToken,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const articleId = Number(req.params.articleId);
+
+    const userId = req.user.id;
+    const user = await db.query.user.findFirst({
+      where: eq(schema.user.id, userId),
+    });
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const articleCount = await db
+      .select({ count: count() })
+      .from(schema.articleQuestions)
+      .where(
+        and(
+          eq(schema.articleQuestions.articleId, articleId),
+          eq(schema.articleQuestions.status, "answered")
+        )
+      )
+      .then((res) => res[0].count);
+
+    return res.status(200).json(articleCount);
   }
 );
 
