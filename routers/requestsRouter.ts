@@ -204,6 +204,13 @@ router.get(
         eq(schema.conferenceQuestions.conferenceId, conferenceId),
         eq(schema.conferenceQuestions.userId, userId)
       ),
+      columns: {
+        id: true,
+        question: true,
+        status: true,
+        conferenceId: true,
+        userId: true,
+      },
     });
 
     return res.status(200).json(questions);
