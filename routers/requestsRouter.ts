@@ -137,9 +137,12 @@ router.delete(
 
 // add a new request
 router.post(
-  "/api/v1/requests",
+  "/api/v1/conferences/:conferenceId/requests",
   validate(
     z.object({
+      params: z.object({
+        conferenceId: z.coerce.number().int().gt(0),
+      }),
       body: z.object({
         question: z.string().max(255),
       }),
@@ -148,7 +151,7 @@ router.post(
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user.id;
-    const conferenceId = Number(req.params.id);
+    const conferenceId = Number(req.params.conferenceId);
     const { question } = req.body;
 
     const user = await db.query.user.findFirst({
@@ -159,7 +162,7 @@ router.post(
       return res.status(401).json({ message: "User not found" });
     }
 
-    const newQuestion = await db
+    const newRequest = await db
       .insert(schema.conferenceQuestions)
       .values({
         question,
@@ -169,7 +172,7 @@ router.post(
       })
       .returning();
 
-    return res.status(200).json(newQuestion);
+    return res.status(200).json(newRequest);
   }
 );
 
