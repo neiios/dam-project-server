@@ -1,4 +1,4 @@
-import { Router, Response } from "express";
+import { Router, Response, Request } from "express";
 
 import { db } from "../index";
 import * as schema from "../schema.ts";
@@ -80,7 +80,7 @@ router.get(
   }
 );
 
-// regular users can get answered questions for an article
+// anyone can get answered questions for an article
 router.get(
   "/api/v1/articles/:articleId/questions",
   validate(
@@ -90,17 +90,8 @@ router.get(
       }),
     })
   ),
-  authenticateToken,
-  async (req: AuthenticatedRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     const articleId = Number(req.params.articleId);
-
-    const userId = req.user.id;
-    const user = await db.query.user.findFirst({
-      where: eq(schema.user.id, userId),
-    });
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
-    }
 
     const questions = await db.query.articleQuestions.findMany({
       where: and(
