@@ -113,17 +113,8 @@ router.get(
       }),
     })
   ),
-  authenticateToken,
-  async (req: AuthenticatedRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     const articleId = Number(req.params.articleId);
-
-    const userId = req.user.id;
-    const user = await db.query.user.findFirst({
-      where: eq(schema.user.id, userId),
-    });
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
-    }
 
     const articleCount = await db
       .select({ count: count() })
