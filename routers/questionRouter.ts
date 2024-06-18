@@ -12,11 +12,11 @@ const router: Router = Router();
 
 // adds a new question
 router.post(
-  "/api/v1/questions/:id",
+  "/api/v1/articles/:id/questions",
   validate(
     z.object({
       params: z.object({
-        id: z.coerce.number().int().gt(0),
+        articleId: z.coerce.number().int().gt(0),
       }),
       body: z.object({
         question: z.string().max(255),
@@ -25,14 +25,13 @@ router.post(
   ),
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
-    const userId = req.user.id;
-    const articleId = Number(req.params.id);
+    const articleId = Number(req.params.articleId);
     const { question } = req.body;
 
+    const userId = req.user.id;
     const user = await db.query.user.findFirst({
       where: eq(schema.user.id, userId),
     });
-
     if (!user) {
       return res.status(401).json({ message: "User not found" });
     }
@@ -63,12 +62,12 @@ router.get(
   ),
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
-    const userId = req.user.id;
     const questionId = Number(req.params.questionId);
+
+    const userId = req.user.id;
     const user = await db.query.user.findFirst({
       where: eq(schema.user.id, userId),
     });
-
     if (!user || user.role !== "admin") {
       return res.status(401).json({ message: "Access denied" });
     }
@@ -93,12 +92,12 @@ router.get(
   ),
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
-    const userId = req.user.id;
     const articleId = Number(req.params.articleId);
+
+    const userId = req.user.id;
     const user = await db.query.user.findFirst({
       where: eq(schema.user.id, userId),
     });
-
     if (!user) {
       return res.status(401).json({ message: "User not found" });
     }
@@ -129,14 +128,13 @@ router.patch(
   ),
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
-    const userId = req.user.id;
     const questionId = Number(req.params.questionId);
     const { answer } = req.body;
+
+    const userId = req.user.id;
     const user = await db.query.user.findFirst({
       where: eq(schema.user.id, userId),
     });
-
-    // only admins should be able to update the question
     if (!user || user.role !== "admin") {
       return res.status(401).json({ message: "Access denied" });
     }
@@ -170,29 +168,23 @@ router.delete(
   ),
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
-    const userId = req.user.id;
     const questionId = Number(req.params.questionId);
+
+    console.log("questionId", questionId);
+
+    const userId = req.user.id;
     const user = await db.query.user.findFirst({
       where: eq(schema.user.id, userId),
     });
-
     if (!user || user.role !== "admin") {
       return res.status(401).json({ message: "Access denied" });
-    }
-
-    const question = await db.query.articleQuestions.findFirst({
-      where: eq(schema.articleQuestions.id, questionId),
-    });
-
-    if (!question) {
-      return res.status(401).json({ message: "Question not found" });
     }
 
     await db
       .delete(schema.articleQuestions)
       .where(eq(schema.articleQuestions.id, questionId));
 
-    return res.status(200);
+    return res.status(200).send();
   }
 );
 
