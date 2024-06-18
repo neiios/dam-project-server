@@ -21,7 +21,7 @@ router.get(
     })
   ),
   async (req, res) => {
-    const conferenceId = req.params.id;
+    const conferenceId = req.params.conferenceId;
 
     // TODO: handle parseInt error
     const page = req.query.page
