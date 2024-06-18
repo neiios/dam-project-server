@@ -153,7 +153,7 @@ router.delete(
 
     await db.delete(schema.article).where(eq(schema.article.id, articleId));
 
-    return res.status(200);
+    return res.status(200).send();
   }
 );
 

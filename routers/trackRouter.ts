@@ -174,7 +174,7 @@ router.delete(
       .delete(schema.track)
       .where(and(eq(schema.track.id, trackId)));
 
-    return res.status(200);
+    return res.status(200).send();
   }
 );
 

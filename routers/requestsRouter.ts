@@ -131,7 +131,7 @@ router.delete(
       .delete(schema.conferenceQuestions)
       .where(eq(schema.conferenceQuestions.id, requestId));
 
-    return res.status(200);
+    return res.status(200).send();
   }
 );
 
