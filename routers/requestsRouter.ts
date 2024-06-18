@@ -10,12 +10,12 @@ import { z } from "zod";
 
 const router: Router = Router();
 
+// get all requests for conferences
 router.get(
-  "/api/v1/questions/admin/articles/:id",
+  "/api/v1/requests",
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user.id;
-    const articleId = Number(req.params.id);
     const user = await db.query.user.findFirst({
       where: eq(schema.user.id, userId),
     });
@@ -24,45 +24,49 @@ router.get(
       return res.status(401).json({ message: "Access denied" });
     }
 
-    const questions = await db.query.articleQuestions.findMany({
-      where: eq(schema.articleQuestions.articleId, articleId),
-    });
+    const questions = await db.query.conferenceQuestions.findMany();
 
     return res.status(200).json(questions);
   }
 );
 
+// get request by id
 router.get(
-  "/api/v1/questions/articles/:id",
+  "/api/v1/requests/:requestId",
+  validate(
+    z.object({
+      params: z.object({
+        requestId: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user.id;
-    const articleId = Number(req.params.id);
+    const requestId = Number(req.params.requestId);
     const user = await db.query.user.findFirst({
       where: eq(schema.user.id, userId),
     });
 
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
+    if (!user || user.role !== "admin") {
+      return res.status(401).json({ message: "Access denied" });
     }
 
-    const questions = await db.query.articleQuestions.findMany({
-      where: and(
-        eq(schema.articleQuestions.articleId, articleId),
-        eq(schema.articleQuestions.status, "answered")
-      ),
+    const question = await db.query.conferenceQuestions.findFirst({
+      where: eq(schema.conferenceQuestions.id, requestId),
     });
 
-    return res.status(200).json(questions);
+    return res.status(200).json(question);
   }
 );
 
+// update request by id
 router.patch(
-  "/api/v1/questions/admin/articles/:questionId",
+  "/api/v1/requests/:requestId",
   validate(
     z.object({
       params: z.object({
-        questionId: z.coerce.number().int().gt(0),
+        requestId: z.coerce.number().int().gt(0),
       }),
       body: z.object({
         answer: z.string().max(255),
@@ -72,7 +76,7 @@ router.patch(
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user.id;
-    const questionId = Number(req.params.questionId);
+    const requestId = Number(req.params.requestId);
     const { answer } = req.body;
     const user = await db.query.user.findFirst({
       where: eq(schema.user.id, userId),
@@ -83,8 +87,8 @@ router.patch(
       return res.status(401).json({ message: "Access denied" });
     }
 
-    const question = await db.query.articleQuestions.findFirst({
-      where: eq(schema.articleQuestions.id, questionId),
+    const question = await db.query.conferenceQuestions.findFirst({
+      where: eq(schema.conferenceQuestions.id, requestId),
     });
 
     if (!question) {
@@ -92,28 +96,29 @@ router.patch(
     }
 
     const updatedQuestion = await db
-      .update(schema.articleQuestions)
+      .update(schema.conferenceQuestions)
       .set({ answer, status: "answered" })
-      .where(eq(schema.articleQuestions.id, questionId))
+      .where(eq(schema.conferenceQuestions.id, requestId))
       .returning();
 
     return res.status(200).json(updatedQuestion);
   }
 );
 
+// remove a request by id
 router.delete(
-  "/api/v1/questions/admin/articles/:questionId",
+  "/api/v1/requests/:requestId",
   validate(
     z.object({
       params: z.object({
-        questionId: z.coerce.number().int().gt(0),
+        requestId: z.coerce.number().int().gt(0),
       }),
     })
   ),
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user.id;
-    const questionId = Number(req.params.questionId);
+    const requestId = Number(req.params.requestId);
     const user = await db.query.user.findFirst({
       where: eq(schema.user.id, userId),
     });
@@ -122,29 +127,19 @@ router.delete(
       return res.status(401).json({ message: "Access denied" });
     }
 
-    const question = await db.query.articleQuestions.findFirst({
-      where: eq(schema.articleQuestions.id, questionId),
-    });
-
-    if (!question) {
-      return res.status(401).json({ message: "Question not found" });
-    }
-
     await db
-      .delete(schema.articleQuestions)
-      .where(eq(schema.articleQuestions.id, questionId));
+      .delete(schema.conferenceQuestions)
+      .where(eq(schema.conferenceQuestions.id, requestId));
 
     return res.status(200);
   }
 );
 
+// add a new request
 router.post(
-  "/api/v1/questions/articles/:id",
+  "/api/v1/requests",
   validate(
     z.object({
-      params: z.object({
-        id: z.coerce.number().int().gt(0),
-      }),
       body: z.object({
         question: z.string().max(255),
       }),
@@ -153,7 +148,7 @@ router.post(
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user.id;
-    const articleId = Number(req.params.id);
+    const conferenceId = Number(req.params.id);
     const { question } = req.body;
 
     const user = await db.query.user.findFirst({
@@ -165,16 +160,43 @@ router.post(
     }
 
     const newQuestion = await db
-      .insert(schema.articleQuestions)
+      .insert(schema.conferenceQuestions)
       .values({
         question,
         status: "pending",
         userId,
-        articleId,
+        conferenceId,
       })
       .returning();
 
     return res.status(200).json(newQuestion);
+  }
+);
+
+// get your own requests
+router.get(
+  "/api/v1/user/requests",
+  authenticateToken,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user.id;
+    const conferenceId = Number(req.params.id);
+    const user = await db.query.user.findFirst({
+      where: eq(schema.user.id, userId),
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    // users see only their own questions about the conference
+    const questions = await db.query.conferenceQuestions.findMany({
+      where: and(
+        eq(schema.conferenceQuestions.conferenceId, conferenceId),
+        eq(schema.conferenceQuestions.userId, userId)
+      ),
+    });
+
+    return res.status(200).json(questions);
   }
 );
 
