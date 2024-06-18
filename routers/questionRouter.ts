@@ -12,7 +12,7 @@ const router: Router = Router();
 
 // adds a new question
 router.post(
-  "/api/v1/articles/:id/questions",
+  "/api/v1/articles/:articleId/questions",
   validate(
     z.object({
       params: z.object({
