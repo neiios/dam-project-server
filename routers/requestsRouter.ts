@@ -178,11 +178,18 @@ router.post(
 
 // get your own requests
 router.get(
-  "/api/v1/user/requests",
+  "/api/v1/conferences/:conferenceId/requests",
+  validate(
+    z.object({
+      params: z.object({
+        conferenceId: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
     const userId = req.user.id;
-    const conferenceId = Number(req.params.id);
+    const conferenceId = Number(req.params.conferenceId);
     const user = await db.query.user.findFirst({
       where: eq(schema.user.id, userId),
     });
