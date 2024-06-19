@@ -206,30 +206,21 @@ router.get(
   }
 );
 
-// user should be able to get his own article question by id
+// allow anyone to get a question by id
 router.get(
   "/api/v1/articles/:articleId/questions/:questionId",
   validate(
     z.object({
       params: z.object({
-        articleId: z.coerce.number().int().gt(0),
         questionId: z.coerce.number().int().gt(0),
       }),
     })
   ),
-  authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
-    const userId = req.user.id;
-
-    const articleId = Number(req.params.articleId);
     const questionId = Number(req.params.questionId);
 
     const question = await db.query.articleQuestions.findFirst({
-      where: and(
-        eq(schema.articleQuestions.articleId, articleId),
-        eq(schema.articleQuestions.userId, userId),
-        eq(schema.articleQuestions.id, questionId)
-      ),
+      where: eq(schema.articleQuestions.id, questionId),
     });
 
     if (!question) {
