@@ -80,28 +80,6 @@ router.get(
   }
 );
 
-// lets admin retrieve all questions
-router.get(
-  "/api/v1/questions",
-  authenticateToken,
-  async (req: AuthenticatedRequest, res: Response) => {
-    const userId = req.user.id;
-    const user = await db.query.user.findFirst({
-      where: eq(schema.user.id, userId),
-    });
-    if (!user || user.role !== "admin") {
-      return res.status(401).json({ message: "Access denied" });
-    }
-
-    const questions = await db.query.articleQuestions.findMany({
-      with: { user: true, article: true },
-    });
-
-    return res.status(200).json(questions);
-  }
-);
-
-// anyone can get answered questions for an article
 router.get(
   "/api/v1/articles/:articleId/questions",
   validate(
@@ -230,7 +208,7 @@ router.delete(
     return res.status(200).send();
   }
 );
-
+4;
 // fetch all pending questions of a user for an article
 router.get(
   "/api/v1/articles/:articleId/questions/user",
@@ -255,6 +233,43 @@ router.get(
     });
 
     return res.status(200).json(questions);
+  }
+);
+
+router.get(
+  "/api/v1/articles/:articleId/questions/:questionId",
+  validate(
+    z.object({
+      params: z.object({
+        articleId: z.coerce.number().int().gt(0),
+        questionId: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
+  async (req: Request, res: Response) => {
+    const articleId = Number(req.params.articleId);
+    const questionId = Number(req.params.questionId);
+
+    const question = await db.query.articleQuestions.findFirst({
+      where: and(
+        eq(schema.articleQuestions.articleId, articleId),
+        eq(schema.articleQuestions.id, questionId)
+      ),
+      columns: {
+        id: true,
+        question: true,
+        answer: true,
+        status: true,
+        articleId: true,
+        userId: true,
+      },
+    });
+
+    if (!question) {
+      return res.status(404).json({ message: "Question not found" });
+    }
+
+    return res.status(200).json(question);
   }
 );
 
