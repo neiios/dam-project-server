@@ -68,8 +68,7 @@ router.post(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
     );
 
-    const body = await locationData.json();
-    const address = body?.display_name;
+    const city = await locationData.json().then((data) => data?.address?.city);
 
     const conference = (
       await db
@@ -82,7 +81,7 @@ router.post(
           endDate,
           imageUrl,
           description,
-          city: address,
+          city,
         })
         .returning()
     ).at(0);
