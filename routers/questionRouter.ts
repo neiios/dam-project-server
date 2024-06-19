@@ -80,6 +80,28 @@ router.get(
   }
 );
 
+// lets admin retrieve all questions
+router.get(
+  "/api/v1/questions",
+  authenticateToken,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user.id;
+    const user = await db.query.user.findFirst({
+      where: eq(schema.user.id, userId),
+    });
+    if (!user || user.role !== "admin") {
+      return res.status(401).json({ message: "Access denied" });
+    }
+
+    const questions = await db.query.articleQuestions.findMany({
+      with: { user: true, article: true },
+    });
+
+    return res.status(200).json(questions);
+  }
+);
+
+// anyone can get answered questions for an article
 router.get(
   "/api/v1/articles/:articleId/questions",
   validate(

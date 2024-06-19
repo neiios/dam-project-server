@@ -24,7 +24,9 @@ router.get(
       return res.status(401).json({ message: "Access denied" });
     }
 
-    const questions = await db.query.conferenceQuestions.findMany();
+    const questions = await db.query.conferenceQuestions.findMany({
+      with: { user: true, conference: true },
+    });
 
     return res.status(200).json(questions);
   }
