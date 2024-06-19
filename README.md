@@ -9,8 +9,8 @@ To run the project:
 - Create the database schema with `bun run push` and then, optionally, create the test data `bun run seed`
 - Develop the project with `bun run dev`
 
-To generate database diagram:
+Generate entity relationship diagram:
 
 ```
-bun dbml.ts && bun dbml-renderer -i schema.dbml -o erd.svg
+bun run erd
 ```
