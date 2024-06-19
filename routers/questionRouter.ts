@@ -94,13 +94,29 @@ router.get(
 
     const questions = await db.query.articleQuestions.findMany({
       where: eq(schema.articleQuestions.articleId, articleId),
-      columns: {
-        id: true,
-        question: true,
-        status: true,
-        articleId: true,
-        userId: true,
-      },
+    });
+
+    return res.status(200).json(questions);
+  }
+);
+
+router.get(
+  "/api/v1/articles/:articleId/questions/pending",
+  validate(
+    z.object({
+      params: z.object({
+        articleId: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
+  async (req: Request, res: Response) => {
+    const articleId = Number(req.params.articleId);
+
+    const questions = await db.query.articleQuestions.findMany({
+      where: and(
+        eq(schema.articleQuestions.articleId, articleId),
+        eq(schema.articleQuestions.status, "pending")
+      ),
     });
 
     return res.status(200).json(questions);
@@ -208,7 +224,7 @@ router.delete(
     return res.status(200).send();
   }
 );
-4;
+
 // fetch all pending questions of a user for an article
 router.get(
   "/api/v1/articles/:articleId/questions/user",
