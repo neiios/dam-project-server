@@ -10,7 +10,7 @@ import { z } from "zod";
 
 const router: Router = Router();
 
-// get all requests for conferences
+// admin can get all requests for all conferences
 router.get(
   "/api/v1/requests",
   authenticateToken,
@@ -32,7 +32,7 @@ router.get(
   }
 );
 
-// get request by id
+// admin can get a request by id
 router.get(
   "/api/v1/requests/:requestId",
   validate(
@@ -62,7 +62,7 @@ router.get(
   }
 );
 
-// update request by id
+// admin should be able to answer a request
 router.patch(
   "/api/v1/requests/:requestId",
   validate(
@@ -84,7 +84,6 @@ router.patch(
       where: eq(schema.user.id, userId),
     });
 
-    // only admins should be able to update the question
     if (!user || user.role !== "admin") {
       return res.status(401).json({ message: "Access denied" });
     }
@@ -107,7 +106,7 @@ router.patch(
   }
 );
 
-// remove a request by id
+// admin should be able to delete requests by id
 router.delete(
   "/api/v1/requests/:requestId",
   validate(
@@ -137,7 +136,7 @@ router.delete(
   }
 );
 
-// add a new request
+// user should be able to add a request to a conference
 router.post(
   "/api/v1/conferences/:conferenceId/requests",
   validate(
@@ -206,56 +205,39 @@ router.get(
         eq(schema.conferenceQuestions.conferenceId, conferenceId),
         eq(schema.conferenceQuestions.userId, userId)
       ),
-      columns: {
-        id: true,
-        question: true,
-        status: true,
-        conferenceId: true,
-        userId: true,
-      },
     });
 
     return res.status(200).json(questions);
   }
 );
 
+// user should be able to retrieve a request by id
 router.get(
   "/api/v1/conferences/:conferenceId/requests/:requestId",
   validate(
     z.object({
       params: z.object({
-        conferenceId: z.coerce.number().int().gt(0),
         requestId: z.coerce.number().int().gt(0),
       }),
     })
   ),
   authenticateToken,
   async (req: AuthenticatedRequest, res: Response) => {
-    const userId = req.user.id;
-    const conferenceId = Number(req.params.conferenceId);
     const requestId = Number(req.params.requestId);
+
+    const userId = req.user.id;
     const user = await db.query.user.findFirst({
       where: eq(schema.user.id, userId),
     });
-
     if (!user) {
       return res.status(401).json({ message: "User not found" });
     }
 
     const question = await db.query.conferenceQuestions.findFirst({
       where: and(
-        eq(schema.conferenceQuestions.conferenceId, conferenceId),
         eq(schema.conferenceQuestions.userId, userId),
         eq(schema.conferenceQuestions.id, requestId)
       ),
-      columns: {
-        id: true,
-        question: true,
-        answer: true,
-        status: true,
-        conferenceId: true,
-        userId: true,
-      },
     });
 
     if (!question) {
