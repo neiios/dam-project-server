@@ -206,4 +206,30 @@ router.delete(
   }
 );
 
+// fetch all pending questions of a user for an article
+router.get(
+  "/api/v1/articles/:articleId/questions/user",
+  validate(
+    z.object({
+      params: z.object({
+        articleId: z.coerce.number().int().gt(0),
+      }),
+    })
+  ),
+  authenticateToken,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user.id;
+    const articleId = Number(req.params.articleId);
+
+    const questions = await db.query.articleQuestions.findMany({
+      where: and(
+        eq(schema.articleQuestions.userId, userId),
+        eq(schema.articleQuestions.articleId, articleId)
+      ),
+    });
+
+    return res.status(200).json(questions);
+  }
+);
+
 export default router;
