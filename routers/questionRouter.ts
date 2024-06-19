@@ -224,7 +224,8 @@ router.get(
     const questions = await db.query.articleQuestions.findMany({
       where: and(
         eq(schema.articleQuestions.userId, userId),
-        eq(schema.articleQuestions.articleId, articleId)
+        eq(schema.articleQuestions.articleId, articleId),
+        eq(schema.articleQuestions.status, "pending")
       ),
     });
 
