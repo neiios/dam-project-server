@@ -1,0 +1,80 @@
+enum question_status {
+  pending
+  answered
+}
+
+enum role {
+  user
+  admin
+}
+
+table article {
+  id serial [pk, not null, increment]
+  title varchar(255) [not null]
+  authors text [not null]
+  abstract text [not null]
+  start_date timestamp [not null]
+  end_date timestamp [not null]
+  conference_id integer [not null]
+  track_id integer [not null]
+}
+
+table article_questions {
+  id serial [pk, not null, increment]
+  question text [not null]
+  answer text
+  status question_status [not null]
+  article_id integer [not null]
+  user_id integer [not null]
+}
+
+table conference {
+  id serial [pk, not null, increment]
+  name varchar(255) [not null]
+  longitude "numeric(10, 6)" [not null]
+  latitude "numeric(10, 6)" [not null]
+  start_date timestamp [not null]
+  end_date timestamp [not null]
+  image_url text [not null]
+  description text [not null]
+  city text [not null]
+}
+
+table questions {
+  id serial [pk, not null, increment]
+  question text [not null]
+  answer text
+  status question_status [not null]
+  conference_id integer [not null]
+  user_id integer [not null]
+}
+
+table track {
+  id serial [pk, not null, increment]
+  name varchar(255) [not null]
+  room varchar(255) [not null]
+  description text [not null]
+  conference_id integer [not null]
+}
+
+table user {
+  id serial [pk, not null, increment]
+  name varchar(255) [not null]
+  password varchar(255) [not null]
+  email varchar(255) [not null]
+  role role [not null]
+}
+
+ref: article_questions.article_id > article.id
+
+ref: article_questions.user_id > user.id
+
+ref: article.conference_id > conference.id
+
+ref: article.track_id > track.id
+
+ref: questions.conference_id > conference.id
+
+ref: questions.user_id > user.id
+
+ref: track.conference_id > conference.id
