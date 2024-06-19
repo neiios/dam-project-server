@@ -80,6 +80,7 @@ router.get(
   }
 );
 
+// fetch all answered questions for an article
 router.get(
   "/api/v1/articles/:articleId/questions",
   validate(
@@ -93,60 +94,13 @@ router.get(
     const articleId = Number(req.params.articleId);
 
     const questions = await db.query.articleQuestions.findMany({
-      where: eq(schema.articleQuestions.articleId, articleId),
-    });
-
-    return res.status(200).json(questions);
-  }
-);
-
-router.get(
-  "/api/v1/articles/:articleId/questions/pending",
-  validate(
-    z.object({
-      params: z.object({
-        articleId: z.coerce.number().int().gt(0),
-      }),
-    })
-  ),
-  async (req: Request, res: Response) => {
-    const articleId = Number(req.params.articleId);
-
-    const questions = await db.query.articleQuestions.findMany({
       where: and(
         eq(schema.articleQuestions.articleId, articleId),
-        eq(schema.articleQuestions.status, "pending")
+        eq(schema.articleQuestions.status, "answered")
       ),
     });
 
     return res.status(200).json(questions);
-  }
-);
-
-router.get(
-  "/api/v1/articles/:articleId/questions/count",
-  validate(
-    z.object({
-      params: z.object({
-        articleId: z.coerce.number().int().gt(0),
-      }),
-    })
-  ),
-  async (req: Request, res: Response) => {
-    const articleId = Number(req.params.articleId);
-
-    const articleCount = await db
-      .select({ count: count() })
-      .from(schema.articleQuestions)
-      .where(
-        and(
-          eq(schema.articleQuestions.articleId, articleId),
-          eq(schema.articleQuestions.status, "answered")
-        )
-      )
-      .then((res) => res[0].count);
-
-    return res.status(200).json(articleCount);
   }
 );
 
@@ -252,6 +206,7 @@ router.get(
   }
 );
 
+// user should be able to get his own article question by id
 router.get(
   "/api/v1/articles/:articleId/questions/:questionId",
   validate(
@@ -262,23 +217,19 @@ router.get(
       }),
     })
   ),
-  async (req: Request, res: Response) => {
+  authenticateToken,
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user.id;
+
     const articleId = Number(req.params.articleId);
     const questionId = Number(req.params.questionId);
 
     const question = await db.query.articleQuestions.findFirst({
       where: and(
         eq(schema.articleQuestions.articleId, articleId),
+        eq(schema.articleQuestions.userId, userId),
         eq(schema.articleQuestions.id, questionId)
       ),
-      columns: {
-        id: true,
-        question: true,
-        answer: true,
-        status: true,
-        articleId: true,
-        userId: true,
-      },
     });
 
     if (!question) {
