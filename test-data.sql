@@ -1,5 +1,5 @@
 -- User Data (including one admin)
--- Password is 'password'
+-- Password is 'password', admin email is 'charlie@sgf.lt'
 INSERT INTO "user" (name, password, email, role)
 VALUES 
     ('Maksim', '$2a$05$ClNvfjLI.wobwrMgkmkSEeHnY1YcbTA1uut0y.fFLQJiCfW8369Sq', 'max@sgf.lt', 'user'),
@@ -13,7 +13,7 @@ VALUES
 INSERT INTO conference (name, longitude, latitude, start_date, end_date, image_url, description, city)
 VALUES
     ('React Conf 2024', -122.4194, 37.7749, '2024-08-12T09:00:00Z', '2024-08-13T17:30:00Z', 'https://conf.react.dev/social-image.png', 'Join Meta, Callstack, and the React team for the 7th React Conf as we celebrate over 10 years of React. Hear about the vision for React''s future from the multi-company team that builds React, some announcements, and from some of your favorite community members. Enjoy time with people who love React. Learn from the people building the tools you use every day. Share your own story. If you can''t join us in person, you can watch the event on our free livestream or catch up later with the recorded talks.', 'San Francisco'),
-    ('JSConf EU',  13.404954, 52.520008 , '2024-07-20', '2024-07-24', 'https://www.devoxx.fr/wp-content/uploads/2022', 'JSConf EU 2019, our 10th anniversary, was the last edition of the event in its current form. We will not return in 2020. And neither will our sister conference CSSconf EU. We still love organizing community events, but we''ll take a break to consider what''s next.', 'Berlin, Germany');
+    ('JSConf EU',  13.404954, 52.520008 , '2024-07-20', '2024-07-24', 'https://conf.react.dev/social-image.png', 'JSConf EU 2019, our 10th anniversary, was the last edition of the event in its current form. We will not return in 2020. And neither will our sister conference CSSconf EU. We still love organizing community events, but we''ll take a break to consider what''s next.', 'Berlin, Germany');
 
 INSERT INTO track (name, room, description, conference_id)
 VALUES
